@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IconResMan", "IconResMan\IconResMan.csproj", "{EABF5CBF-24AC-44BC-8C2B-7EE41FFCA405}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EABF5CBF-24AC-44BC-8C2B-7EE41FFCA405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EABF5CBF-24AC-44BC-8C2B-7EE41FFCA405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EABF5CBF-24AC-44BC-8C2B-7EE41FFCA405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EABF5CBF-24AC-44BC-8C2B-7EE41FFCA405}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3B32D4D4-EEBB-4300-A1FD-B4534C3FE963}
+	EndGlobalSection
+EndGlobal

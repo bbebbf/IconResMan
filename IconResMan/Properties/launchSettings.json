@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "IconResMan": {
+      "commandName": "Project",
+      "commandLineArgs": "delete Passwords.exe -sfile regedit.exe -sres #102 -verbose"
+    }
+  }
+}
