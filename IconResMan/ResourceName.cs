@@ -51,6 +51,19 @@ namespace IconResMan
             }
         }
 
+        public string Title()
+        {
+            if (Name != null)
+            {
+                return "Name";
+            }
+            else if (Id != null)
+            {
+                return "Id";
+            }
+            return string.Empty;
+        }
+
         public ushort? Id { get; init; }
 
         public string? Name { get; init; }

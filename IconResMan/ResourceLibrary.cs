@@ -106,14 +106,14 @@ namespace IconResMan
             return size;
         }
 
-        public List<ResourceKey>? GetResources(ResourceType type, ResourceName? predicate)
+        public List<ResourceKey>? GetResources(ResourceType type, ResourceName? resourcename, bool errorOnNotFound = false)
         {
             if (!LoadLibraryIfNeeded())
                 return null;
 
             LastError = 0;
             var result = new List<ResourceKey>();
-            var gchandle = GCHandle.Alloc(new EnumResNamesData(result, predicate));
+            var gchandle = GCHandle.Alloc(new EnumResNamesData(result, resourcename));
             try
             {
                 if (!EnumResourceNamesW(this.handle, 
@@ -121,8 +121,11 @@ namespace IconResMan
                     new EnumResNameDelegate(EnumResNames),
                     GCHandle.ToIntPtr(gchandle)))
                 {
-                    ProcessLastError(nameof(GetResources));
-                    if (LastError != 0 && LastError != ERROR_RESOURCE_TYPE_NOT_FOUND)
+                    if (ProcessLastError(nameof(GetResources), (error) =>
+                        {
+                            return errorOnNotFound || (error != ERROR_RESOURCE_TYPE_NOT_FOUND);
+                        }
+                    ))
                     {
                         return null;
                     }
@@ -219,34 +222,18 @@ namespace IconResMan
                 return true;
         }
 
-        private void ProcessLastError(string originator)
+        private bool ProcessLastError(string originator, LastErrorIsErrorDelegate? lasterrorIsError = null)
         {
             LastError = Marshal.GetLastWin32Error();
             if (LastError == 0)
-                return;
+                return false;
+
+            if (lasterrorIsError != null)
+                if (!lasterrorIsError(LastError))
+                    return false;
 
             _logger.Error(originator, LastError);
-            /*
-            var buffer = IntPtr.Zero;
-            try
-            {
-                if (FormatMessage(
-                        FORMAT_MESSAGE_ALLOCATE_BUFFER + FORMAT_MESSAGE_FROM_SYSTEM + FORMAT_MESSAGE_IGNORE_INSERTS,
-                        IntPtr.Zero, (uint)LastError, 0, buffer, 1024, IntPtr.Zero) > 0)
-                {
-                    var s1 = Marshal.PtrToStringUni(buffer);
-                    _logger.Error(originator, s1, LastError);
-                }
-                else
-                {
-                        _logger.Error(originator, LastError);
-                }
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(buffer);
-            }
-            */
+            return true;
         }
 
         private bool EnumResNames(IntPtr hModule, IntPtr lpszType, IntPtr lpszName, IntPtr lParam)
@@ -257,7 +244,7 @@ namespace IconResMan
 
             var data = (EnumResNamesData)gch.Target;
             using var name = new ResourceName(lpszName);
-            if (data.Predicate == null || data.Predicate.Equals(name)) 
+            if (data.ResourceName == null || data.ResourceName.Equals(name)) 
                 data.Result.Add(new ResourceKey(lpszType, lpszName));
             return true;
         }
@@ -273,16 +260,18 @@ namespace IconResMan
             return true;
         }
 
+        private delegate bool LastErrorIsErrorDelegate(int lasterror);
+
         private class EnumResNamesData
         {
-            public EnumResNamesData(List<ResourceKey> resultlist, ResourceName? predicate)
+            public EnumResNamesData(List<ResourceKey> resultlist, ResourceName? resourcename)
             {
                 Result = resultlist;
-                Predicate = predicate;
+                ResourceName = resourcename;
             }
 
             public List<ResourceKey> Result { get; init; }
-            public ResourceName? Predicate { get; init; }
+            public ResourceName? ResourceName { get; init; }
         }
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Winapi, SetLastError = true)]

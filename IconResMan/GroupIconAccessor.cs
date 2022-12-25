@@ -59,7 +59,7 @@ namespace IconResMan
             }
             else
             {
-                _logger.InfoVerbose(nameof(GroupIconAccessor), $"Loading group icons with name = {name} from file {Library.Filename}");
+                _logger.InfoVerbose(nameof(GroupIconAccessor), $"Loading group icons with {name.Title()} = {name} from file {Library.Filename}");
             }
             var list = Library.GetResources(ResourceType.GROUP_ICON, name);
             if (list == null)
