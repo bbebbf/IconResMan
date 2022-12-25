@@ -26,29 +26,29 @@ try
     var targetfilename = args[PARAM_IDX_TARGETFILENAME];
 
     if (!FileExists(targetfilename))
-        return ActionResultToInt(CommandResult.ErrorFileNotFound);
+        return CommandResultToInt(CommandResult.ErrorFileNotFound);
 
     switch(command)
     {
         case "update":
-            return ActionResultToInt(UpdateGoupIcon(targetfilename));
+            return CommandResultToInt(UpdateGoupIcon(targetfilename));
         case "delete":
-            return ActionResultToInt(DeleteGoupIcon(targetfilename));
+            return CommandResultToInt(DeleteGoupIcon(targetfilename));
         case "rename":
-            return ActionResultToInt(RenameGoupIcon(targetfilename));
+            return CommandResultToInt(RenameGoupIcon(targetfilename));
         case "list":
-            return ActionResultToInt(ListGoupIcon(targetfilename));
+            return CommandResultToInt(ListGoupIcon(targetfilename));
     }
     PrintHelp();
-    return ActionResultToInt(CommandResult.ErrorUnknownCommand);
+    return CommandResultToInt(CommandResult.ErrorUnknownCommand);
 }
 catch (Exception ex)
 {
     Console.Error.WriteLine($"Exception occurred: [{ex.GetType()}] {ex.Message}");
-    return ActionResultToInt(CommandResult.Error);
+    return CommandResultToInt(CommandResult.Error);
 }
 
-int ActionResultToInt(CommandResult actionresult)
+int CommandResultToInt(CommandResult actionresult)
 {
     return (int)actionresult;
 }

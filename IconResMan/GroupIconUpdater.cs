@@ -2,9 +2,9 @@
 
 namespace IconResMan
 {
-    public class GroupIconCopier
+    public class GroupIconUpdater
     {
-        public GroupIconCopier(ResourceLibrary source, ResourceLibrary target, LogProcessor logger)
+        public GroupIconUpdater(ResourceLibrary source, ResourceLibrary target, LogProcessor logger)
         {
             _source = new GroupIconAccessor(source, logger);
             _target = new GroupIconAccessor(target, logger);
@@ -33,7 +33,7 @@ namespace IconResMan
 
             if (_target.Library.BeginUpdate())
             {
-                _logger.InfoVerbose(nameof(GroupIconCopier), $"Update process started for file {_target.Library.Filename}.");
+                _logger.InfoVerbose(nameof(GroupIconUpdater), $"Update process started for file {_target.Library.Filename}.");
             }
             else
             {
@@ -56,7 +56,7 @@ namespace IconResMan
                 endUpdateSuccessful = _target.Library.EndUpdate(discardChanges);
                 if (endUpdateSuccessful)
                 {
-                    _logger.InfoVerbose(nameof(GroupIconCopier), $"Update process {(discardChanges ? "discarded" : "finished")} for file {_target.Library.Filename}.");
+                    _logger.InfoVerbose(nameof(GroupIconUpdater), $"Update process {(discardChanges ? "discarded" : "finished")} for file {_target.Library.Filename}.");
                 }
             }
             return endUpdateSuccessful ? CommandResult.Success : CommandResult.Error;
@@ -77,7 +77,7 @@ namespace IconResMan
             {
                 if (targetname != null && targetsearchresult.CountBeforeLanguages == 0)
                 {
-                    _logger.Error(nameof(GroupIconCopier), $"{ResourceType.GROUP_ICON} \"{targetname}\" not found in file {_target.Library.Filename}.");
+                    _logger.Error(nameof(GroupIconUpdater), $"{ResourceType.GROUP_ICON} \"{targetname}\" not found in file {_target.Library.Filename}.");
                     return false;
                 }
                 targetgroup_to_be_replaced = targetsearchresult.GroupIcons?.Where(
@@ -87,11 +87,11 @@ namespace IconResMan
             var availTargetIconIdx = new Queue<ushort>();
             if (targetgroup_to_be_replaced == null)
             {
-                _logger.InfoVerbose(nameof(GroupIconCopier), $"Adding {sourcegroup.KeyLang} ...");
+                _logger.InfoVerbose(nameof(GroupIconUpdater), $"Adding {sourcegroup.KeyLang} ...");
             }
             else
             {
-                _logger.InfoVerbose(nameof(GroupIconCopier), $"Replacing {targetgroup_to_be_replaced.KeyLang} by {sourcegroup.KeyLang} ...");
+                _logger.InfoVerbose(nameof(GroupIconUpdater), $"Replacing {targetgroup_to_be_replaced.KeyLang} by {sourcegroup.KeyLang} ...");
 
                 foreach (var icon in targetgroup_to_be_replaced.Members)
                 {
@@ -121,7 +121,7 @@ namespace IconResMan
                 var iconKeyLang = new ResourceKeyLang(new ResourceKey(ResourceType.ICON, nextIconIdx), sourceicon.Key.Language);
                 if (_target.Library.UpdateResource(iconKeyLang, loadresult.StartPointer, loadresult.ByteCount))
                 {
-                    _logger.InfoVerbose(nameof(GroupIconCopier), $"{iconKeyLang} {(iconAdded ? "added" : "updated")}.");
+                    _logger.InfoVerbose(nameof(GroupIconUpdater), $"{iconKeyLang} {(iconAdded ? "added" : "updated")}.");
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace IconResMan
                     var iconKeyLang = new ResourceKeyLang(new ResourceKey(ResourceType.ICON, tobeDeletedIdx), targetgroup_to_be_replaced.KeyLang.Language);
                     if (_target.Library.DeleteResource(iconKeyLang))
                     {
-                        _logger.InfoVerbose(nameof(GroupIconCopier), $"Unused {iconKeyLang} deleted.");
+                        _logger.InfoVerbose(nameof(GroupIconUpdater), $"Unused {iconKeyLang} deleted.");
                     }
                     else
                     {
@@ -159,7 +159,7 @@ namespace IconResMan
                 {
                     if (_target.Library.DeleteResource(targetgroup_to_be_replaced.KeyLang))
                     {
-                        _logger.InfoVerbose(nameof(GroupIconCopier), $"{targetgroup_to_be_replaced.KeyLang} deleted.");
+                        _logger.InfoVerbose(nameof(GroupIconUpdater), $"{targetgroup_to_be_replaced.KeyLang} deleted.");
                     }
                     else
                     {
@@ -172,7 +172,7 @@ namespace IconResMan
             using var sourcegroupintptr = new GroupIconIntPtr(sourcegroup);
             if (_target.Library.UpdateResource(targetgroupKey, sourcegroupintptr.IntPtr, (uint)sourcegroupintptr.BufferSize))
             {
-                _logger.InfoVerbose(nameof(GroupIconCopier), $"{targetgroupKey} updated.");
+                _logger.InfoVerbose(nameof(GroupIconUpdater), $"{targetgroupKey} updated.");
             }
             else
             {
