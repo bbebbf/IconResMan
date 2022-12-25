@@ -8,11 +8,8 @@ namespace IconResMan
 {
     public interface ILogger
     {
-        void Info(string originator, string message);
-        void InfoVerbose(string originator, string message);
-        void Warn(string originator, string message);
-        void Error(string originator, string message);
-        void Error(string originator, string message, int errorcode);
-        void Error(string originator, int errorcode);
+        void Info(string message);
+        void Warn(string message);
+        void Error(string message);
     }
 }

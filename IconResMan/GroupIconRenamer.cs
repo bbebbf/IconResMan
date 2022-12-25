@@ -4,7 +4,7 @@ namespace IconResMan
 {
     public class GroupIconRenamer
     {
-        public GroupIconRenamer(ResourceLibrary target, ILogger logger)
+        public GroupIconRenamer(ResourceLibrary target, LogProcessor logger)
         {
             _target = new GroupIconAccessor(target, logger);
             _logger = logger;
@@ -13,7 +13,7 @@ namespace IconResMan
         public CommandResult RenameGroupIcon(ResourceName? targetname, ResourceName newname)
         {
             var searchresult = _target.LoadGroupIconByName(targetname);
-            if (searchresult.CommandResult != CommandResult.Success)
+            if (searchresult.CommandResult != CommandResult.Success || searchresult.GroupIcons == null)
                 return searchresult.CommandResult;
 
             if (_target.Library.BeginUpdate())
@@ -76,6 +76,6 @@ namespace IconResMan
         }
 
         private readonly GroupIconAccessor _target;
-        private readonly ILogger _logger;
+        private readonly LogProcessor _logger;
     }
 }

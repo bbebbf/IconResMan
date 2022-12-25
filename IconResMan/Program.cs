@@ -7,6 +7,7 @@ const int MINIMUM_ARGS_LENGHTH = 2;
 const int PARAM_IDX_ACTION = 0;
 const int PARAM_IDX_TARGETFILENAME = 1;
 
+const string PARAM_NAME_VERBOSE = "verbose";
 const string PARAM_NAME_SOURCE = "sfile";
 const string PARAM_NAME_SOURCE_RESOURCENAME = "sres";
 const string PARAM_NAME_TARGET_RESOURCENAME = "tres";
@@ -54,7 +55,7 @@ int ActionResultToInt(CommandResult actionresult)
 
 CommandResult UpdateGoupIcon(string targetfilename)
 {
-    var logger = new ConsoleLogger();
+    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
 
     var sourcefilename = ParamTools.GetParamValue(PARAM_NAME_SOURCE);
     if (!sourcefilename.Item1)
@@ -101,7 +102,7 @@ CommandResult DeleteGoupIcon(string targetfilename)
     if (resourcename.Item1)
         targetname_arg = new ArgumentToResNameAdapter(resourcename.Item2);
 
-    var logger = new ConsoleLogger();
+    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
     using var targetlib = new ResourceLibrary(targetfilename, logger);
     using var target_resname = targetname_arg != null ? new ResourceName(targetname_arg) : null;
 
@@ -111,7 +112,7 @@ CommandResult DeleteGoupIcon(string targetfilename)
 
 CommandResult RenameGoupIcon(string targetfilename)
 {
-    var logger = new ConsoleLogger();
+    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
 
     var new_resourcename = ParamTools.GetParamValue(PARAM_NAME_NEW_RESOURCENAME);
     if (!new_resourcename.Item1)
@@ -137,7 +138,7 @@ CommandResult RenameGoupIcon(string targetfilename)
 
 CommandResult ListGoupIcon(string targetfilename)
 {
-    var logger = new ConsoleLogger();
+    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
     using var targetlib = new ResourceLibrary(targetfilename, logger);
 
     var lister = new GroupIconLister(targetlib, logger);

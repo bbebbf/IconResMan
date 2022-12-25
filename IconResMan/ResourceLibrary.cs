@@ -6,7 +6,7 @@ namespace IconResMan
 {
     public sealed class ResourceLibrary : SafeHandle
     {
-        public ResourceLibrary(string filename, ILogger logger) : base(IntPtr.Zero, true)
+        public ResourceLibrary(string filename, LogProcessor logger) : base(IntPtr.Zero, true)
         {
             Filename = filename;
             Flags = LOAD_LIBRARY_AS_DATAFILE;
@@ -211,7 +211,7 @@ namespace IconResMan
             return FreeLibrary(this.handle);
         }
 
-        private readonly ILogger _logger;
+        private readonly LogProcessor _logger;
         private IntPtr _updateHandle = IntPtr.Zero;
 
         private bool LoadLibraryIfNeeded()

@@ -45,7 +45,7 @@ namespace IconResMan
             public IntPtr StartPointer;
         }
 
-        public GroupIconAccessor(ResourceLibrary library, ILogger logger)
+        public GroupIconAccessor(ResourceLibrary library, LogProcessor logger)
         {
             Library = library;
             _logger = logger;
@@ -187,7 +187,7 @@ namespace IconResMan
 
         public ResourceLibrary Library { get; init; }
 
-        private readonly ILogger _logger;
+        private readonly LogProcessor _logger;
 
         private Dictionary<ushort, GroupIconMemberIcon> _usedMemberIcons = new();
 

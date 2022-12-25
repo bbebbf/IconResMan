@@ -4,7 +4,7 @@ namespace IconResMan
 {
     public class GroupIconCopier
     {
-        public GroupIconCopier(ResourceLibrary source, ResourceLibrary target, ILogger logger)
+        public GroupIconCopier(ResourceLibrary source, ResourceLibrary target, LogProcessor logger)
         {
             _source = new GroupIconAccessor(source, logger);
             _target = new GroupIconAccessor(target, logger);
@@ -17,7 +17,7 @@ namespace IconResMan
             ResourceName? target_newname)
         {
             var searchresult = _source.LoadGroupIconByName(sourcename);
-            if (searchresult.CommandResult != CommandResult.Success)
+            if (searchresult.CommandResult != CommandResult.Success || searchresult.GroupIcons == null)
                 return searchresult.CommandResult;
 
             var alltargeticons = _target.Library.GetResources(ResourceType.ICON, null);
@@ -183,6 +183,6 @@ namespace IconResMan
 
         private readonly GroupIconAccessor _source;
         private readonly GroupIconAccessor _target;
-        private readonly ILogger _logger;
+        private readonly LogProcessor _logger;
     }
 }

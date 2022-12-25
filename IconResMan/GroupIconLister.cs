@@ -8,7 +8,7 @@ namespace IconResMan
 {
     public class GroupIconLister
     {
-        public GroupIconLister(ResourceLibrary source, ILogger logger)
+        public GroupIconLister(ResourceLibrary source, LogProcessor logger)
         {
             _source = new GroupIconAccessor(source, logger);
         }

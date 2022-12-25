@@ -4,7 +4,7 @@ namespace IconResMan
 {
     public class GroupIconDeleter
     {
-        public GroupIconDeleter(ResourceLibrary target, ILogger logger)
+        public GroupIconDeleter(ResourceLibrary target, LogProcessor logger)
         {
             _target = new GroupIconAccessor(target, logger);
             _logger = logger;
@@ -13,7 +13,7 @@ namespace IconResMan
         public CommandResult DeleteGroupIcon(ResourceName? targetname)
         {
             var searchresult = _target.LoadGroupIconByName(targetname);
-            if (searchresult.CommandResult != CommandResult.Success)
+            if (searchresult.CommandResult != CommandResult.Success || searchresult.GroupIcons == null)
                 return searchresult.CommandResult;
 
             if (_target.Library.BeginUpdate())
@@ -87,6 +87,6 @@ namespace IconResMan
         }
 
         private readonly GroupIconAccessor _target;
-        private readonly ILogger _logger;
+        private readonly LogProcessor _logger;
     }
 }
