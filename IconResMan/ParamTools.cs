@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IconResMan
+﻿namespace IconResMan
 {
     public static class ParamTools
     {
@@ -22,17 +15,17 @@ namespace IconResMan
             return false;
         }
 
-        public static Tuple<bool, string> GetParamValue(string paramName)
+        public static string? GetParamValue(string paramName)
         {
             var args = Environment.GetCommandLineArgs();
             for (int i = 1; i < args.Length - 1; i++)
             {
                 if (ParamIsEquals(paramName, args[i]))
                 {
-                    return new Tuple<bool, string>(true, args[i + 1]);
+                    return args[i + 1];
                 }
             }
-            return new Tuple<bool, string>(false, "");
+            return null;
         }
 
         private static bool ParamIsEquals(string expected, string paramName)

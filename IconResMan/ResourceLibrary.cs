@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using System.Text;
 using static IconResMan.WinapiTypes;
 
 namespace IconResMan

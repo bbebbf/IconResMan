@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using static IconResMan.WinapiTypes;
+﻿using static IconResMan.WinapiTypes;
 
 namespace IconResMan
 {

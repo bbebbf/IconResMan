@@ -4,14 +4,26 @@ namespace IconResMan
 {
     public class GroupIconUpdater
     {
-        public GroupIconUpdater(ResourceLibrary source, ResourceLibrary target, LogProcessor logger)
+        public GroupIconUpdater(ResourceLibrary target, ResourceLibrary source, LogProcessor logger)
         {
-            _source = new GroupIconAccessor(source, logger);
             _target = new GroupIconAccessor(target, logger);
+            _source = new GroupIconAccessor(source, logger);
             _logger = logger;
         }
 
-        public CommandResult CopyGroupIcon(bool addalways,
+        public CommandResult UpdateGroupIcon(ResourceName? sourcename,
+            ResourceName? targetname, ResourceName? target_newname)
+        {
+            return Update(false, sourcename, targetname, target_newname);
+        }
+
+        public CommandResult AddGroupIcon(ResourceName? sourcename,
+            ResourceName? target_newname)
+        {
+            return Update(true, sourcename, null, target_newname);
+        }
+
+        private CommandResult Update(bool addalways,
             ResourceName? sourcename,
             ResourceName? targetname,
             ResourceName? target_newname)
@@ -67,14 +79,14 @@ namespace IconResMan
             ResourceName? targetname,
             ResourceName? target_newname)
         {
-            var targetsearchresult = _target.LoadGroupIcons(targetname);
-            if (targetsearchresult.ErrorOccurred)
-                return false;
-
             GroupIcon? targetgroup_to_be_replaced = null;
 
             if (!addalways)
             {
+                var targetsearchresult = _target.LoadGroupIcons(targetname);
+                if (targetsearchresult.ErrorOccurred)
+                    return false;
+
                 if (targetname != null && targetsearchresult.CountBeforeLanguages == 0)
                 {
                     _logger.Error(nameof(GroupIconUpdater), $"{ResourceType.GROUP_ICON} \"{targetname}\" not found in file {_target.Library.Filename}.");
@@ -181,8 +193,8 @@ namespace IconResMan
             return true;
         }
 
-        private readonly GroupIconAccessor _source;
         private readonly GroupIconAccessor _target;
+        private readonly GroupIconAccessor _source;
         private readonly LogProcessor _logger;
     }
 }

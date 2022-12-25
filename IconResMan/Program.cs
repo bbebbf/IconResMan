@@ -11,8 +11,11 @@ const string PARAM_NAME_VERBOSE = "verbose";
 const string PARAM_NAME_SOURCE = "sfile";
 const string PARAM_NAME_SOURCE_RESOURCENAME = "sres";
 const string PARAM_NAME_TARGET_RESOURCENAME = "tres";
-const string PARAM_NAME_SWITCH_ADD_ALWAYS = "add";
 const string PARAM_NAME_NEW_RESOURCENAME = "newname";
+
+IIconResManager iconresmanager = new IconResManager();
+iconresmanager.SetLogger(new ConsoleLogger());
+iconresmanager.SetVerbosity(ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
 
 try
 {
@@ -25,135 +28,77 @@ try
     var command = args[PARAM_IDX_ACTION];
     var targetfilename = args[PARAM_IDX_TARGETFILENAME];
 
-    if (!FileExists(targetfilename))
-        return CommandResultToInt(CommandResult.ErrorFileNotFound);
-
     switch(command)
     {
+        case "add":
+            return UpdateGoupIcon(targetfilename, true);
         case "update":
-            return CommandResultToInt(UpdateGoupIcon(targetfilename));
+            return UpdateGoupIcon(targetfilename, false);
         case "delete":
-            return CommandResultToInt(DeleteGoupIcon(targetfilename));
+            return DeleteGoupIcon(targetfilename);
         case "rename":
-            return CommandResultToInt(RenameGoupIcon(targetfilename));
+            return RenameGoupIcon(targetfilename);
         case "list":
-            return CommandResultToInt(ListGoupIcon(targetfilename));
+            return ListGoupIcon(targetfilename);
     }
     PrintHelp();
-    return CommandResultToInt(CommandResult.ErrorUnknownCommand);
+    return (int)CommandResult.ErrorUnknownCommand;
 }
 catch (Exception ex)
 {
     Console.Error.WriteLine($"Exception occurred: [{ex.GetType()}] {ex.Message}");
-    return CommandResultToInt(CommandResult.Error);
+    return (int)CommandResult.Error;
 }
 
-int CommandResultToInt(CommandResult actionresult)
+int UpdateGoupIcon(string targetfilename, bool addAlways)
 {
-    return (int)actionresult;
-}
-
-CommandResult UpdateGoupIcon(string targetfilename)
-{
-    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
-
-    var sourcefilename = ParamTools.GetParamValue(PARAM_NAME_SOURCE);
-    if (!sourcefilename.Item1)
+    var sourcepath = ParamTools.GetParamValue(PARAM_NAME_SOURCE);
+    if (sourcepath == null)
     {
-        logger.Error(nameof(IconResManExe), $"Parameter \"-{PARAM_NAME_SOURCE}\" not found.");
-        return CommandResult.ErrorParameterNotFound;
-    }
-    if (!FileExists(sourcefilename.Item2))
-    {
-        return CommandResult.ErrorFileNotFound;
-    }
-    var addalways = ParamTools.FindParamSwitch(PARAM_NAME_SWITCH_ADD_ALWAYS);
-
-    ArgumentToResNameAdapter? sourcename_arg = null;
-    ArgumentToResNameAdapter? targetname_arg = null;
-    ArgumentToResNameAdapter? newresname_arg = null;
-
-    var resourcename = ParamTools.GetParamValue(PARAM_NAME_SOURCE_RESOURCENAME);
-    if (resourcename.Item1)
-        sourcename_arg = new ArgumentToResNameAdapter(resourcename.Item2);
-    resourcename = ParamTools.GetParamValue(PARAM_NAME_TARGET_RESOURCENAME);
-    if (resourcename.Item1)
-        targetname_arg = new ArgumentToResNameAdapter(resourcename.Item2);
-    var newresname_param = ParamTools.GetParamValue(PARAM_NAME_NEW_RESOURCENAME);
-    if (newresname_param.Item1 && !string.IsNullOrEmpty(newresname_param.Item2))
-        newresname_arg = new ArgumentToResNameAdapter(newresname_param.Item2);
-
-    using var sourcelib = new ResourceLibrary(sourcefilename.Item2, logger);
-    using var targetlib = new ResourceLibrary(targetfilename, logger);
-
-    using var source_resname = sourcename_arg != null ? new ResourceName(sourcename_arg) : null;
-    using var target_resname = targetname_arg != null ? new ResourceName(targetname_arg) : null;
-    using var newresname = newresname_arg != null ? new ResourceName(newresname_arg) : null;
-
-    var copier = new GroupIconCopier(sourcelib, targetlib, logger);
-    return copier.CopyGroupIcon(addalways, source_resname, target_resname, newresname);
-}
-
-CommandResult DeleteGoupIcon(string targetfilename)
-{
-    ArgumentToResNameAdapter? targetname_arg = null;
-
-    var resourcename = ParamTools.GetParamValue(PARAM_NAME_TARGET_RESOURCENAME);
-    if (resourcename.Item1)
-        targetname_arg = new ArgumentToResNameAdapter(resourcename.Item2);
-
-    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
-    using var targetlib = new ResourceLibrary(targetfilename, logger);
-    using var target_resname = targetname_arg != null ? new ResourceName(targetname_arg) : null;
-
-    var deleter = new GroupIconDeleter(targetlib, logger);
-    return deleter.DeleteGroupIcon(target_resname);
-}
-
-CommandResult RenameGoupIcon(string targetfilename)
-{
-    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
-
-    var new_resourcename = ParamTools.GetParamValue(PARAM_NAME_NEW_RESOURCENAME);
-    if (!new_resourcename.Item1)
-    {
-        logger.Error(nameof(IconResManExe), $"Parameter \"-{PARAM_NAME_NEW_RESOURCENAME}\" not found.");
-        return CommandResult.ErrorParameterNotFound;
+        Console.Error.WriteLine(nameof(IconResManExe), $"Parameter \"-{PARAM_NAME_NEW_RESOURCENAME}\" not found.");
+        return (int)CommandResult.ErrorParameterNotFound;
     }
 
-    ArgumentToResNameAdapter? targetname_arg = null;
-    ArgumentToResNameAdapter newname_arg = new ArgumentToResNameAdapter(new_resourcename.Item2);
-
-    var resourcename = ParamTools.GetParamValue(PARAM_NAME_TARGET_RESOURCENAME);
-    if (resourcename.Item1)
-        targetname_arg = new ArgumentToResNameAdapter(resourcename.Item2);
-
-    using var target_resname = targetname_arg != null ? new ResourceName(targetname_arg) : null;
-    using var new_resname = new ResourceName(newname_arg);
-    using var targetlib = new ResourceLibrary(targetfilename, logger);
-
-    var renamer = new GroupIconRenamer(targetlib, logger);
-    return renamer.RenameGroupIcon(target_resname, new_resname);
-}
-
-CommandResult ListGoupIcon(string targetfilename)
-{
-    var logger = new LogProcessor(new ConsoleLogger(), ParamTools.FindParamSwitch(PARAM_NAME_VERBOSE));
-    using var targetlib = new ResourceLibrary(targetfilename, logger);
-
-    var lister = new GroupIconLister(targetlib, logger);
-    return lister.List(new ConsoleWriter());
-}
-
-bool FileExists(string path)
-{
-    if (File.Exists(path))
+    if (addAlways)
     {
-        return true;
+        return iconresmanager.AddGroupIcon(targetfilename,
+            sourcepath,
+            ParamTools.GetParamValue(PARAM_NAME_SOURCE_RESOURCENAME),
+            ParamTools.GetParamValue(PARAM_NAME_NEW_RESOURCENAME));
+    }
+    else
+    {
+        return iconresmanager.UpdateGroupIcon(targetfilename,
+            sourcepath,
+            ParamTools.GetParamValue(PARAM_NAME_SOURCE_RESOURCENAME),
+            ParamTools.GetParamValue(PARAM_NAME_TARGET_RESOURCENAME),
+            ParamTools.GetParamValue(PARAM_NAME_NEW_RESOURCENAME));
+    }
+}
+
+int DeleteGoupIcon(string targetfilename)
+{
+    return iconresmanager.DeleteGroupIcon(targetfilename,
+        ParamTools.GetParamValue(PARAM_NAME_TARGET_RESOURCENAME));
+}
+
+int RenameGoupIcon(string targetfilename)
+{
+    var newname = ParamTools.GetParamValue(PARAM_NAME_NEW_RESOURCENAME);
+    if (newname == null)
+    {
+        Console.Error.WriteLine(nameof(IconResManExe), $"Parameter \"-{PARAM_NAME_NEW_RESOURCENAME}\" not found.");
+        return (int)CommandResult.ErrorParameterNotFound;
     }
 
-    Console.Error.WriteLine($"File {path} does not exist.");
-    return false;
+    return iconresmanager.RenameGroupIcon(targetfilename,
+        ParamTools.GetParamValue(PARAM_NAME_TARGET_RESOURCENAME),
+        newname);
+}
+
+int ListGoupIcon(string targetfilename)
+{
+    return iconresmanager.ListGroupIcons(targetfilename, new ConsoleWriter());
 }
 
 void PrintHelp()
